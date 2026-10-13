@@ -3,6 +3,7 @@ Supervisor Orchestrator & Operations Intelligence for Pqc Certificate X509 Hybri
 Domain: Post-Quantum Cryptography & Hardware Security
 """
 import uuid
+import json
 from typing import Dict, Any, List, Optional
 from .base import AuditLogger, ActionExecutor, PHIGuard
 from .models import SystemTaskPayload, AgentAlert, ConsensusDossier, UrgencyLevel, SystemIntegrityStatus
@@ -25,6 +26,10 @@ class SystemSupervisor:
         PHIGuard.assert_no_phi(payload.task_id)
         PHIGuard.assert_no_phi(payload.target_identifier)
         PHIGuard.assert_no_phi(payload.status_descriptor)
+        attrs = json.dumps(payload.attributes, sort_keys=True)
+        if len(attrs) > 16384:
+            raise ValueError("Attributes exceed 16 KiB limit")
+        PHIGuard.assert_no_phi(attrs)
 
         # Multi-worker evaluations
         all_alerts: List[AgentAlert] = []
