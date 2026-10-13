@@ -5,6 +5,8 @@ import argparse
 import csv
 import json
 import sys
+from pathlib import Path
+from .certificates import inspect_certificate
 from .models import FrontierPayload
 from .agents import PQCX509Coordinator
 
@@ -32,6 +34,10 @@ def main(argv=None):
     p_batch = subparsers.add_parser("batch", help="Batch process CSV records")
     p_batch.add_argument("-i", "--input", required=True)
     p_batch.add_argument("-o", "--output", default="results.csv")
+
+    # Inspect certificate metadata (read-only; no PKI validation)
+    p_cert = subparsers.add_parser("inspect-cert", help="Inspect PEM/DER X.509 certificate metadata")
+    p_cert.add_argument("certificate", help="Local PEM or DER certificate file")
 
     # Serve
     p_serve = subparsers.add_parser("serve", help="Launch FastAPI REST server")
@@ -116,6 +122,15 @@ def main(argv=None):
                 print(f"  - {err}", file=sys.stderr)
             if len(errors) > 10:
                 print(f"  ... and {len(errors) - 10} more", file=sys.stderr)
+        return 0
+
+    if args.command == "inspect-cert":
+        try:
+            result = inspect_certificate(Path(args.certificate).read_bytes())
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+        print(json.dumps(result, indent=2))
         return 0
 
     if args.command == "serve":
