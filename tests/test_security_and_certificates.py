@@ -94,3 +94,9 @@ def test_api_handles_sensitive_values_and_has_static_console():
     response = client.post("/api/audit", json={
         "task_id": "A", "target_identifier": "B", "primary_metric": "Infinity"})
     assert response.status_code == 422
+
+
+def test_legacy_metrics_reject_nan():
+    from pqc_x509_pki.models import FrontierPayload
+    with pytest.raises(ValueError):
+        FrontierPayload("A", "B", float("nan"), 2.0, "NOMINAL")
