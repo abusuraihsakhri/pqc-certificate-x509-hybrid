@@ -1,7 +1,7 @@
 """
 Data Models & Telemetry Definitions for PQC-X509: Hybrid Post-Quantum PKI Certificate Parser & Authority Agent.
 Domain: Post-Quantum Cryptography & Zero-Knowledge
-Standard: IETF LAMPS Composite PQC Certificates
+Standard: Illustrative thresholds; not certificate validation
 """
 import datetime
 from dataclasses import dataclass, field
@@ -35,7 +35,7 @@ class AgentTelemetryAlert:
     summary: str
     technical_details: str
     actionable_remediation: str
-    standard_reference: str = "IETF LAMPS Composite PQC Certificates"
+    standard_reference: str = "Illustrative thresholds; not certificate validation"
     timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
     def to_dict(self) -> Dict[str, Any]:

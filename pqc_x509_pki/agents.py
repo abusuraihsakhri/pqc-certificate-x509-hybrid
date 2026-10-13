@@ -93,7 +93,7 @@ class PQCX509Coordinator:
             "critical_count": crit_count,
             "warning_count": warn_count,
             "alerts": [a.to_dict() for a in all_alerts],
-            "standard_specification": "IETF LAMPS Composite PQC Certificates",
+            "standard_specification": "Illustrative thresholds; not certificate validation",
             "consensus_summary": f"Consensus evaluation completed across 3 sub-agents with status [{status.value}].",
         }
 
@@ -105,6 +105,6 @@ class PQCX509Coordinator:
         if "status" in q or "ledger" in q:
             return f"PQC-X509: Hybrid Post-Quantum PKI Certificate Parser & Authority Agent currently managing {len(self.execution_ledger)} execution tasks in air-gapped memory."
         elif "standard" in q or "spec" in q:
-            return "Active runtime operating strictly according to IETF LAMPS Composite PQC Certificates specifications."
+            return "The telemetry demo uses fixed illustrative thresholds and does not validate X.509/PQC standards."
         else:
-            return f"PQC-X509: Hybrid Post-Quantum PKI Certificate Parser & Authority Agent executive coordinator online. Zero-telemetry on-premises surveillance active."
+            return "The in-memory demonstration coordinator is available. No certificate issuance or cryptographic verification is performed."

@@ -1,147 +1,72 @@
 # PQC Certificate X509 Hybrid
 
-> **Domain:** Post-Quantum Cryptography & Zero-Knowledge Architecture
-> **Reference Guidelines & Standards:** `NIST FIPS 203/204/205, NIST SP 800-90B & ISO/IEC Standards`
+A research-oriented Python audit demonstrator and read-only X.509 certificate metadata inspector.
 
-<div align="center">
+**Scope:** The rule-based audit workers process user-supplied numeric measurements and status descriptors. Their thresholds are illustrative, not defined by NIST or IETF PKI specifications. The certificate inspector can parse public PEM/DER certificates and report fields, signature algorithm OIDs, key type, and SHA-256 fingerprint. **It does not issue certificates, verify cryptographic signatures, validate trust chains, check revocation, or establish hybrid/PQC interoperability or conformance.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi&logoColor=white)
-![Audit Trail](https://img.shields.io/badge/Audit-HMAC--SHA256_Tamper--Evident-brightgreen.svg)
-![Zero-PHI Guard](https://img.shields.io/badge/Guard-Zero--PHI_Outbound-blue.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)
+## Features
 
-</div>
+- Browser-based, offline-capable telemetry demonstration in `web/`; API use is optional and never silently simulated
+- Python threshold evaluation with three workers, CLI batch CSV processing, and a FastAPI service
+- Read-only X.509 metadata inspection using `cryptography`
+- In-memory HMAC-SHA256 chained audit *hashes* for backend assessments, and heuristic pattern-based sensitive-identifier checks
+- Automated Python and Node.js tests; Docker configuration for local use
 
----
+## Use the application
 
-## What It Does
+When GitHub Pages is enabled and the deployment succeeds, the browser demonstration will be available from the repository's Pages deployment. The static interface can also be opened directly from `web/index.html`. Browser mode performs computations locally and does not contact a server. It does not use Pyodide because the small deterministic rule set can run directly in JavaScript without a large Python runtime.
 
-**PQC Certificate X509 Hybrid** is an analytical and computational platform implementing a Hybrid Post-Quantum PKI X.509 dual classical/PQC certificate authority agent. It provides:
+Enter two numerical measurements and a status descriptor, choose the optional critical flag, then select **Evaluate sample**. Export JSON to download the result. To use the backend instead, run the Python API and explicitly enable **Use the local Python API** in the UI.
 
-- **Multi-Agent Evaluation System**: Specialized workers (InvariantQCWorker, SafetyEscalationWorker, ProtocolConformanceWorker) that evaluate task payloads against domain thresholds
-- **Zero-PHI Outbound Guard**: Active pattern detection blocking SSNs, MRNs, phone numbers, emails, and patient identifiers from outbound data
-- **Tamper-Evident HMAC-SHA256 Audit Trail**: Cryptographically chained, signed logs for every evaluation and state transition
-- **FastAPI REST API**: OpenAPI 3.1 REST endpoints for task evaluation and system monitoring
-- **CLI Interface**: Command-line tools for single task evaluation, batch processing, and server management
+## Python setup
 
----
-
-## Key Components
-
-| Module | Description |
-|:-------|:------------|
-| `agents/` | Core multi-agent evaluation system with Pydantic models, workers, and supervisor |
-| `pqc_x509_pki/` | PQC-X509 certificate parsing and authority engine with specialized sub-agents |
-| `enrichment.py` | Domain enrichment engines for project analysis and compliance checking |
-| `simulator.py` | High-throughput traffic and stress testing simulator |
-| `cli.py` | Command-line interface for the main agent system |
-| `web/` | Operations console web interface |
-
----
-
-## Installation
+Python 3.10 or newer:
 
 ```bash
-# Clone the repository
 git clone https://github.com/abusuraihsakhri/pqc-certificate-x509-hybrid.git
 cd pqc-certificate-x509-hybrid
-
-# Install dependencies
-pip install fastapi uvicorn pydantic pytest
-
-# Optional: Set audit secret key for persistent audit trails
-export AUDIT_SECRET_KEY="your-secure-key-here"
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[test]"
 ```
 
----
+For the primary audit CLI and REST API:
 
-## Usage
-
-### CLI Commands
-
-#### 1. Single Task Evaluation
 ```bash
-python cli.py audit --task-id TASK-001 --target KEY-01 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
-```
-
-#### 2. Supervisory Chat
-```bash
-python cli.py chat "What is the system status?"
-```
-
-#### 3. Batch Processing
-```bash
+python cli.py audit --task-id TASK-01 --target KEY-01 --primary 28.5 --secondary 14.2 --status DISCORDANT
 python cli.py batch -i sample.csv -o results.csv
-```
-
-#### 4. Verify Audit Trail
-```bash
 python cli.py verify-audit
-```
-
-#### 5. Start API Server
-```bash
 python cli.py serve --host 127.0.0.1 --port 8000
 ```
 
-### API Endpoints
+Then visit `http://127.0.0.1:8000/` for the local web UI, or `http://127.0.0.1:8000/docs` for the API documentation. Endpoints include `GET /health`, `GET /metrics`, `POST /api/audit`, `POST /api/chat`, and `GET /api/audit/logs`.
 
-| Endpoint | Method | Description |
-|:---------|:-------|:------------|
-| `/health` | GET | Health check |
-| `/metrics` | GET | System metrics |
-| `/api/audit` | POST | Submit task for evaluation |
-| `/api/chat` | POST | Query supervisory chat |
-| `/api/audit/logs` | GET | Get audit trail |
-
-### Docker Deployment
+Read-only certificate inspection (public certificates only):
 
 ```bash
-docker build -t pqc-certificate-x509-hybrid .
-docker run -p 8000:8000 -e AUDIT_SECRET_KEY="your-key" pqc-certificate-x509-hybrid
+python cli.py inspect-cert certificate.pem
+pqc-certificate-x509-hybrid inspect-cert certificate.der
 ```
 
----
+The installed `pqc-certificate-x509-hybrid` command uses a separate, legacy threshold implementation in `pqc_x509_pki/`; it is not identical to the `python cli.py` audit API. Both commands support `inspect-cert`.
 
-## Input Data Schema
+## Security and privacy
 
-| Field | Type | Description | Requirement |
-|:------|:-----|:------------|:------------|
-| `task_id` | str | Unique task identifier | Required |
-| `target_identifier` | str | Entity or target key | Required |
-| `primary_metric` | float | Primary measurement value | Required |
-| `secondary_metric` | float | Secondary measurement value | Optional (default: 0.0) |
-| `status_descriptor` | str | Status code or descriptor | Optional (default: "NOMINAL") |
-| `is_critical_flag` | bool | Emergency escalation flag | Optional (default: false) |
+Browser evaluations remain in the browser; no request is sent unless API use is explicitly selected. Do not upload private keys or sensitive personal information. The Python API stores dossiers and audit hashes **in process memory**, not in durable storage. HMAC signatures protect recorded metadata hashes only while the secret key and unmodified records are available. The identifier-pattern filter is **not** a guarantee of HIPAA de-identification or complete PHI detection.
 
----
+Provide an independent strong `AUDIT_SECRET_KEY` in your environment for server use. If no key is supplied in direct Python execution, a random ephemeral key is generated; earlier audit chains cannot be verified after restart. `docker-compose.yml` requires the key to be explicitly supplied and binds the service to loopback by default. For public deployment, add authentication, transport security, persistent signed records, and access controls.
 
 ## Testing
 
 ```bash
-# Run all tests
-pytest -v
-
-# Run with coverage
-pytest -v --cov=agents --cov=pqc_x509_pki
-
-# Run simulation benchmark
-python simulator.py --tasks 1000 --concurrency 8
+python -m pytest -q
+python -m compileall -q agents pqc_x509_pki cli.py enrichment.py simulator.py
+node --test web/app.test.cjs
+node --check web/app.js
 ```
 
----
-
-## Security Features
-
-- **Zero-PHI Outbound Interceptor**: AST and regex inspection blocking SSNs, MRNs, phone numbers, emails, DOB, and patient identifiers
-- **Tamper-Evident HMAC-SHA256 Audit Trail**: Chained, cryptographically signed logs with signature verification
-- **Secure Key Management**: Audit signing key via `AUDIT_SECRET_KEY` environment variable with secure ephemeral fallback
-- **Input Validation**: Pydantic models with bounds checking and type validation
-
----
+The browser app uses plain HTML, CSS, and JavaScript with no external libraries. Modern desktop and mobile browsers are expected to work; compatibility is tested by CI for syntax and rule evaluation, not a complete cross-browser matrix.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT, see [LICENSE](LICENSE).

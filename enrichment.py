@@ -1,6 +1,6 @@
 """
 Enrichment Feature Implementation for pqc-certificate-x509-hybrid.
-Generated based on domain-specific requirements in specifications.
+Contains illustrative threshold calculators; not formal PKI testing or NIST compliance verification.
 """
 from dataclasses import dataclass, field
 from typing import Dict, Any, List, Optional, Tuple
