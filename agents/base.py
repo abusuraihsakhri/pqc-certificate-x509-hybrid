@@ -10,6 +10,7 @@ import hmac
 import hashlib
 import secrets
 import warnings
+from copy import deepcopy
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 from pydantic import BaseModel, Field
@@ -96,6 +97,11 @@ class AuditTrail:
     def verify_integrity(self) -> bool:
         """Verify both chain linkage and HMAC signatures for all audit entries."""
         for i, entry in enumerate(self.logs):
+            if not isinstance(entry, dict) or not all(k in entry for k in (
+                "audit_id", "timestamp", "actor", "actor_tier", "event_type",
+                "payload_hash", "prev_hash", "current_hash",
+            )):
+                return False
             # Verify chain linkage
             prev = self.logs[i-1]["current_hash"] if i > 0 else "GENESIS_BLOCK_0000000000000000"
             if entry["prev_hash"] != prev:
@@ -108,7 +114,7 @@ class AuditTrail:
         return True
 
     def get_trail(self) -> List[Dict[str, Any]]:
-        return self.logs
+        return deepcopy(self.logs)
 
 
 GLOBAL_AUDIT = AuditTrail()
