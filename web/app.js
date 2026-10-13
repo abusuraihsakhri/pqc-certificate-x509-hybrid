@@ -11,7 +11,7 @@ function evaluateLocally(input) {
   const descriptor = String(input.status_descriptor || "NOMINAL").trim();
   const primary = Number(input.primary_metric);
   const secondary = Number(input.secondary_metric);
-  if (!taskId || !targetId || !descriptor || taskId.length > 128 || targetId.length > 128) {
+  if (!taskId || !targetId || !descriptor || taskId.length > 128 || targetId.length > 128 || descriptor.length > 256) {
     throw new Error("Provide a task ID, target identifier and status (maximum 128 characters for identifiers).");
   }
   if (!Number.isFinite(primary) || !Number.isFinite(secondary)) {
@@ -126,7 +126,9 @@ if (typeof document !== "undefined") {
     const link = document.createElement("a");
     link.href = url;
     link.download = "audit-result.json";
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 }
