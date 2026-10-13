@@ -15,7 +15,7 @@ def create_app():
 
         app = FastAPI(
             title="PQC-X509: Hybrid Post-Quantum PKI Certificate Parser & Authority Agent",
-            description="Issues and verifies composite X.509 certificates containing dual classical (ECDSA/RSA) and post-quantum (ML-DSA/Falcon) public keys per IETF LAMPS drafts.",
+            description="Legacy rule-based telemetry demonstration; no certificate issuance or signature verification.",
             version="2.0.0-FRONTIER",
         )
 

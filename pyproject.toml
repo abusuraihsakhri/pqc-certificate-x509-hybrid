@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pqc-certificate-x509-hybrid"
-version = "2.0.0"
-description = "PQC-X509: Hybrid Post-Quantum PKI Certificate Parser & Authority Engine"
+version = "2.1.0"
+description = "Threshold-based audit demonstrator and X.509 certificate metadata inspector"
 readme = "README.md"
 authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
 license = { text = "MIT" }
@@ -13,15 +13,28 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Topic :: Security/Cryptography",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Security :: Cryptography",
 ]
-requires-python = ">=3.9"
-dependencies = []
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2.5,<3",
+    "fastapi>=0.110,<1",
+    "uvicorn>=0.27,<1",
+    "cryptography>=42,<49",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "httpx>=0.27,<1"]
 
 [project.scripts]
 pqc-certificate-x509-hybrid = "pqc_x509_pki.cli:main"
 
+[tool.setuptools.packages.find]
+include = ["agents*", "pqc_x509_pki*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [project.urls]
 Homepage = "https://github.com/abusuraihsakhri/pqc-certificate-x509-hybrid"
-Repository = "https://github.com/abusuraihsakhri/pqc-certificate-x509-hybrid.git"
+Repository = "https://github.com/abusuraihsakhri/pqc-certificate-x509-hybrid"

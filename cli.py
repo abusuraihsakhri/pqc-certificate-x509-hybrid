@@ -5,6 +5,8 @@ import argparse
 import csv
 import json
 import sys
+from pathlib import Path
+from pqc_x509_pki.certificates import inspect_certificate
 from agents.models import SystemTaskPayload
 from agents.supervisor import SystemSupervisor
 from agents.base import AuditLogger
@@ -36,6 +38,10 @@ def main(argv=None):
 
     # Verify Audit
     subparsers.add_parser("verify-audit", help="Verify HMAC audit trail integrity")
+
+    # Inspect certificate metadata (read-only; no PKI validation)
+    p_cert = subparsers.add_parser("inspect-cert", help="Inspect PEM/DER X.509 certificate metadata")
+    p_cert.add_argument("certificate", help="Local PEM or DER certificate file")
 
     # Serve
     p_serve = subparsers.add_parser("serve", help="Launch FastAPI REST server")
@@ -77,7 +83,7 @@ def main(argv=None):
         trail = AuditLogger.get_trail()
         valid = AuditLogger.verify_integrity()
         print(f"Audit Trail Blocks: {len(trail)} | Cryptographic Integrity Verified: {valid}")
-        return 0
+        return 0 if valid else 1
 
     if args.command == "batch":
         try:
@@ -127,6 +133,15 @@ def main(argv=None):
                 print(f"  - {err}", file=sys.stderr)
             if len(errors) > 10:
                 print(f"  ... and {len(errors) - 10} more", file=sys.stderr)
+        return 0
+
+    if args.command == "inspect-cert":
+        try:
+            result = inspect_certificate(Path(args.certificate).read_bytes())
+        except (OSError, ValueError) as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+        print(json.dumps(result, indent=2))
         return 0
 
     if args.command == "serve":

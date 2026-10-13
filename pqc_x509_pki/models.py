@@ -1,9 +1,10 @@
 """
 Data Models & Telemetry Definitions for PQC-X509: Hybrid Post-Quantum PKI Certificate Parser & Authority Agent.
 Domain: Post-Quantum Cryptography & Zero-Knowledge
-Standard: IETF LAMPS Composite PQC Certificates
+Standard: Illustrative thresholds; not certificate validation
 """
 import datetime
+import math
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Any
@@ -26,6 +27,14 @@ class FrontierPayload:
     attributes: Dict[str, Any] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
+    def __post_init__(self):
+        if not all(isinstance(v, str) and v.strip() for v in (
+            self.task_id, self.target_identifier, self.status_descriptor
+        )):
+            raise ValueError("Task ID, target identifier and status must not be blank")
+        if not all(math.isfinite(v) for v in (self.primary_metric, self.secondary_metric)):
+            raise ValueError("Both measurements must be finite numbers")
+
 
 @dataclass
 class AgentTelemetryAlert:
@@ -35,7 +44,7 @@ class AgentTelemetryAlert:
     summary: str
     technical_details: str
     actionable_remediation: str
-    standard_reference: str = "IETF LAMPS Composite PQC Certificates"
+    standard_reference: str = "Illustrative thresholds; not certificate validation"
     timestamp: str = field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
     def to_dict(self) -> Dict[str, Any]:
